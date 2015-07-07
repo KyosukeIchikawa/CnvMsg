@@ -1,6 +1,8 @@
 # CnvMsg
 Conveter for JSON and MessagePack
 
+You can run it from the command prompt
+
 ## EXSAMPLE: translating JSON to MessagePack
 CnvMsg.exe /mode pack input.dat output.msg
 
