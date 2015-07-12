@@ -244,7 +244,7 @@ void CommandLine::Read(int argc, const char* const argv[])
   }
 
   //----- ヘルプ表示(引数が入力されなかった場合も行う) -----//
-  if ((command.size() <= 1) || (command.count(Impl::Prefix::HELP) > 0))
+  if ((command.size() == 0) || (command.count(Impl::Prefix::HELP) > 0))
   {
     m_impl->ProcessHelp(settings);
     // 正常終了
