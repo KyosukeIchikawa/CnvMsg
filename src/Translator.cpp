@@ -9,6 +9,7 @@
 #include <Json.h>
 #include <JsonParser.h>
 #include <MsgpackParser.h>
+#include <streambuf>
 #include <fstream>
 #include <string>
 #include <iomanip>
@@ -58,16 +59,17 @@ void Translator::Translate(const CommandLine& command)
       // 入力ファイルを開く
       std::ifstream ifs;
       ifs.open(command.InputFile(), std::ios::binary);
+      // ファイルサイズを取得する(終端位置でサイズが分かる)
+      auto size = ifs.seekg(0, std::ios::end).tellg();
+      ifs.seekg(0, std::ios::beg);
       // ファイルの内容を取得する
-      std::string buf;
-      std::string tmp;
-      while (std::getline(ifs, tmp)) buf += tmp;
+      std::string buf((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
       // パースする
       adlib::MsgpackParser parser;
       const auto& json = parser.Parse(buf);
       // 出力ファイルを開く
       std::ofstream ofs;
-      ofs.open(command.OutputFile(), std::ios::out | std::ios::trunc | std::ios::binary);
+      ofs.open(command.OutputFile(), std::ios::out | std::ios::trunc);
       // 浮動小数点数の形式を指定
       if (command.Scientific())
       {
