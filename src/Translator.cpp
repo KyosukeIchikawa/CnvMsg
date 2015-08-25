@@ -30,10 +30,6 @@ Translator::~Translator() {}
  */
 void Translator::Translate(const CommandLine& command)
 {
-  // 出力ファイルを開く
-  std::ofstream ofs;
-  ofs.open(command.OutputFile());
-
   // モード分岐
   switch (command.Mode())
   {
@@ -49,6 +45,9 @@ void Translator::Translate(const CommandLine& command)
       // パースする
       adlib::JsonParser parser;
       const auto& json = parser.Parse(buf);
+      // 出力ファイルを開く
+      std::ofstream ofs;
+      ofs.open(command.OutputFile(), std::ios::out | std::ios::trunc | std::ios::binary);
       // ダンプ
       json.DumpMsgpack(&ofs);
     }
@@ -56,6 +55,19 @@ void Translator::Translate(const CommandLine& command)
 
     case CommandLine::MESSAGEPACK_TO_JSON:
     {
+      // 入力ファイルを開く
+      std::ifstream ifs;
+      ifs.open(command.InputFile(), std::ios::binary);
+      // ファイルの内容を取得する
+      std::string buf;
+      std::string tmp;
+      while (std::getline(ifs, tmp)) buf += tmp;
+      // パースする
+      adlib::MsgpackParser parser;
+      const auto& json = parser.Parse(buf);
+      // 出力ファイルを開く
+      std::ofstream ofs;
+      ofs.open(command.OutputFile(), std::ios::out | std::ios::trunc | std::ios::binary);
       // 浮動小数点数の形式を指定
       if (command.Scientific())
       {
@@ -67,16 +79,6 @@ void Translator::Translate(const CommandLine& command)
       }
       // 小数点以下の桁数を指定
       ofs << std::setprecision(command.Precision());
-      // 入力ファイルを開く
-      std::ifstream ifs;
-      ifs.open(command.InputFile(), std::ios::binary);
-      // ファイルの内容を取得する
-      std::string buf;
-      std::string tmp;
-      while (std::getline(ifs, tmp)) buf += tmp;
-      // パースする
-      adlib::MsgpackParser parser;
-      const auto& json = parser.Parse(buf);
       // ダンプ
       json.Dump(&ofs);
     }
